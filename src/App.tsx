@@ -177,9 +177,7 @@ export default function App() {
                 </option>
               ))}
             </select>
-
           </div>
-
           <button
             type="submit"
             className="w-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 py-3 rounded-xl font-bold hover:scale-[1.02] transition"
