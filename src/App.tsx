@@ -1,10 +1,5 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
-
-
 
 export const createConverter = (
   fromUnit: string,
@@ -24,14 +19,18 @@ export const createConverter = (
   };
 };
 
-// ✅ App.tsx with proper TypeScript types
 export default function App() {
-  const [value, setValue] = useState<number>(0);
+  const [value, setValue] = useState<string>("");
   const [fromUnit, setFromUnit] = useState<string>("lb");
   const [toUnit, setToUnit] = useState<string>("kg");
-  const [result, setResult] = useState<number | null>(null);
+
+  // ✅ result is now an array
+  const [result, setResult] = useState<number[] | null>(null);
+
   const [activeCategory, setActiveCategory] = useState<string>("Weight");
-  const categories: string[] = ["Weight", "Distance", "Temperature"];
+
+  const categories = ["Weight", "Distance", "Temperature"];
+
   const unitOptions: Record<string, string[]> = {
     Weight: ["lb", "kg"],
     Distance: ["mi", "km"],
@@ -48,25 +47,41 @@ export default function App() {
 
   const handleConvert = () => {
     const converter = createConverter(fromUnit, toUnit);
-    setResult(converter(Number(value)));
+
+    // ✅ split input into array
+    const values = value
+      .split(",")
+      .map((v) => v.trim())
+      .filter((v) => v !== "")
+      .map((v) => Number(v));
+
+    // ✅ convert each value
+    const results = values.map((v) =>
+      isNaN(v) ? NaN : converter(v)
+    );
+
+    setResult(results);
   };
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <nav className="sticky top-0 border-b border-slate-800 bg-slate-950/90 px-6 py-4">
+    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+
+      {/* NAV */}
+      <nav className="sticky top-0 backdrop-blur-md bg-white/5 border-b border-white/10 px-6 py-4">
         <div className="mx-auto max-w-5xl flex flex-col md:flex-row items-center justify-between gap-4">
-          <h1 className="text-2xl font-bold text-cyan-400">
+          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
             Unit Converter
           </h1>
+
           <div className="flex gap-3">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => handleCategoryChange(cat)}
-                className={`px-4 py-2 rounded-xl font-semibold transition ${
+                className={`px-4 py-2 rounded-full transition ${
                   activeCategory === cat
-                    ? "bg-cyan-400 text-slate-900"
-                    : "bg-slate-800 hover:bg-slate-700"
+                    ? "bg-cyan-400 text-slate-900 scale-105"
+                    : "bg-white/10 hover:bg-white/20"
                 }`}
               >
                 {cat}
@@ -76,60 +91,90 @@ export default function App() {
         </div>
       </nav>
 
-      <section className="mx-auto max-w-xl p-6">
-        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-xl">
-          <h2 className="text-3xl font-bold text-center mb-6">
+      {/* CONTENT */}
+      <section className="flex items-center justify-center px-4 py-10">
+        <div className="w-full max-w-xl backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl p-8 shadow-2xl">
+
+          <h2 className="text-4xl font-bold text-center mb-8">
             {activeCategory} Converter
           </h2>
 
+          {/* INPUT */}
           <input
-            type="number"
+            type="text"
             value={value}
-            onChange={(e) => setValue(Number(e.target.value))}
-            className="w-full p-3 mb-4 rounded-lg bg-slate-950 border border-slate-700"
-            placeholder="Enter value"
+            onChange={(e) => setValue(e.target.value)}
+            placeholder="Enter numbers (e.g. 1, 2, 3)"
+            className="w-full p-4 mb-6 text-lg rounded-xl bg-black/30 border border-white/10 focus:outline-none focus:ring-2 focus:ring-cyan-400"
           />
 
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          {/* SELECTS */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+
+            {/* FROM */}
             <select
               value={fromUnit}
-              onChange={(e) => setFromUnit(e.target.value)}
-              className="p-2 rounded-lg bg-slate-800"
+              onChange={(e) => {
+                const newFrom = e.target.value;
+                setFromUnit(newFrom);
+
+                if (newFrom === toUnit) {
+                  const options = unitOptions[activeCategory];
+                  const other = options.find((u) => u !== newFrom);
+                  if (other) setToUnit(other);
+                }
+              }}
+              className="p-3 rounded-xl bg-black/30 border border-white/10"
             >
               {unitOptions[activeCategory].map((unit) => (
                 <option key={unit} value={unit}>
-                  {unit}
+                  {unit.toUpperCase()}
                 </option>
               ))}
             </select>
 
-
+            {/* TO */}
             <select
               value={toUnit}
-              onChange={(e) => setToUnit(e.target.value)}
-              className="p-2 rounded-lg bg-slate-800"
+              onChange={(e) => {
+                const newTo = e.target.value;
+                setToUnit(newTo);
+
+                if (newTo === fromUnit) {
+                  const options = unitOptions[activeCategory];
+                  const other = options.find((u) => u !== newTo);
+                  if (other) setFromUnit(other);
+                }
+              }}
+              className="p-3 rounded-xl bg-black/30 border border-white/10"
             >
               {unitOptions[activeCategory].map((unit) => (
                 <option key={unit} value={unit}>
-                  {unit}
+                  {unit.toUpperCase()}
                 </option>
               ))}
             </select>
+
           </div>
 
+          {/* BUTTON */}
           <button
             onClick={handleConvert}
-            className="w-full bg-cyan-400 text-slate-900 py-2 rounded-lg font-semibold hover:opacity-90"
+            className="w-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 py-3 rounded-xl font-bold hover:scale-[1.02] transition"
           >
             Convert
           </button>
 
+          {/* RESULT */}
           {result !== null && (
-            <div className="mt-6 text-center">
-              <p className="text-slate-400">Result</p>
-              <p className="text-2xl font-bold">
-                {result.toFixed(2)}
-              </p>
+            <div className="mt-8 text-center space-y-2">
+              <p className="text-sm text-slate-400">Results</p>
+
+              {result.map((r, i) => (
+                <p key={i} className="text-xl font-bold text-cyan-400">
+                  {isNaN(r) ? "Invalid input" : r.toFixed(2)}
+                </p>
+              ))}
             </div>
           )}
         </div>
