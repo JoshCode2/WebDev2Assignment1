@@ -1,3 +1,21 @@
+/*
+
+Group Members Names: Jireh Agbozo, Irteza Hassan, Joshua Wijaya
+Date: May 30, 2026
+
+Program Description:
+This program is a responsive unit converter website
+built using React, TypeScript, Vite, and Tailwind CSS which are our core 
+stack we are studying this semester in web development.
+The application allows users to convert between metric
+and imperial units for weight, distance, and temperature.
+Users can convert both single numerical values and lists
+of values separated by commas. The program uses a
+higher-order function that returns arrow functions
+to perform all unit conversions dynamically.
+
+*/
+
 import { useState } from 'react'
 import './App.css'
 
