@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 
+// Higher-order Function
 export const createConverter = (
   fromUnit: string,
   toUnit: string
@@ -23,12 +24,8 @@ export default function App() {
   const [value, setValue] = useState<string>("");
   const [fromUnit, setFromUnit] = useState<string>("lb");
   const [toUnit, setToUnit] = useState<string>("kg");
-
-  // ✅ result is now an array
   const [result, setResult] = useState<number[] | null>(null);
-
   const [activeCategory, setActiveCategory] = useState<string>("Weight");
-
   const categories = ["Weight", "Distance", "Temperature"];
 
   const unitOptions: Record<string, string[]> = {
@@ -37,6 +34,7 @@ export default function App() {
     Temperature: ["c", "f"],
   };
 
+  // Category Change Button Handler
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category);
     const units = unitOptions[category];
@@ -45,19 +43,20 @@ export default function App() {
     setResult(null);
   };
 
+  // This is for the convert button
   const handleConvert = () => {
+    // create the function
     const converter = createConverter(fromUnit, toUnit);
 
-    // ✅ split input into array
     const values = value
       .split(",")
       .map((v) => v.trim())
       .filter((v) => v !== "")
       .map((v) => Number(v));
 
-    // ✅ convert each value
+    // Convert each number. Map is like a for loop
     const results = values.map((v) =>
-      isNaN(v) ? NaN : converter(v)
+      isNaN(v) ? NaN : converter(v) // if invalid then return NaN, else convert
     );
 
     setResult(results);
@@ -78,11 +77,10 @@ export default function App() {
               <button
                 key={cat}
                 onClick={() => handleCategoryChange(cat)}
-                className={`px-4 py-2 rounded-full transition ${
-                  activeCategory === cat
+                className={`px-4 py-2 rounded-full transition ${activeCategory === cat
                     ? "bg-cyan-400 text-slate-900 scale-105"
                     : "bg-white/10 hover:bg-white/20"
-                }`}
+                  }`}
               >
                 {cat}
               </button>
@@ -93,7 +91,14 @@ export default function App() {
 
       {/* CONTENT */}
       <section className="flex items-center justify-center px-4 py-10">
-        <div className="w-full max-w-xl backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl p-8 shadow-2xl">
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleConvert();
+          }}
+          className="w-full max-w-xl backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl p-8 shadow-2xl"
+        >
 
           <h2 className="text-4xl font-bold text-center mb-8">
             {activeCategory} Converter
@@ -128,7 +133,7 @@ export default function App() {
             >
               {unitOptions[activeCategory].map((unit) => (
                 <option key={unit} value={unit}>
-                  {unit.toUpperCase()}
+                  {unit === "mi" ? "Miles" : unit.toUpperCase()}
                 </option>
               ))}
             </select>
@@ -150,16 +155,15 @@ export default function App() {
             >
               {unitOptions[activeCategory].map((unit) => (
                 <option key={unit} value={unit}>
-                  {unit.toUpperCase()}
+                  {unit === "mi" ? "Miles" : unit.toUpperCase()}
                 </option>
               ))}
             </select>
 
           </div>
 
-          {/* BUTTON */}
           <button
-            onClick={handleConvert}
+            type="submit"
             className="w-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 py-3 rounded-xl font-bold hover:scale-[1.02] transition"
           >
             Convert
@@ -177,7 +181,7 @@ export default function App() {
               ))}
             </div>
           )}
-        </div>
+        </form>
       </section>
     </main>
   );
